@@ -1,125 +1,202 @@
-# PCA_with_Fashion_MNIST
+# 📌 PCA with Fashion MNIST
 
-🎯 Goal of This Code
-You're working with images of clothes and accessories, trying to:
+## 🎯 Goal of This Project
 
-Understand the data with visualizations.
+In this project, we work with the Fashion MNIST dataset which contains images of clothes and accessories.  
+The main goal of this project is to understand how PCA (Principal Component Analysis) works on image data.
 
-Reduce its dimensionality using PCA (less data, same meaning).
+This project includes:
 
-Visualize in 2D and 3D using principal components.
+- Understanding the dataset using visualization
+- Applying PCA for dimensionality reduction
+- Visualizing data in 2D and 3D
+- Compressing images using PCA
+- Reconstructing images after compression
+- Checking how much information is preserved
 
-Compress and then reconstruct images to see how much information is preserved.
+This project helps in learning PCA step-by-step in a practical way.
 
-🧱 STEP-BY-STEP EXPLANATION
-📦 1. Import Libraries & Setup
-%matplotlib notebook
-%matplotlib inline
-These are magic commands for showing plots directly in the notebook.
+---
 
-You only need one of these. Use %matplotlib inline for static plots or %matplotlib notebook for interactive ones.
+## 🧱 Step-by-Step Explanation
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-These are standard Python libraries for plotting (matplotlib), numerical work (numpy), and working with tables (pandas).
+### 📦 Import Libraries and Setup
 
-📂 2. Load & Filter Dataset
-data = pd.read_csv(r"C:\Users\diyap\Downloads\fashion-mnist.csv\fashion-mnist_train.csv")
-Load the Fashion MNIST training dataset — a CSV file where each row is an image (flattened 28x28 = 784 values) and a label (e.g., 0 for T-shirt, 1 for Trouser).
+We start by importing required libraries like NumPy, Pandas, and Matplotlib.  
+These libraries are used for numerical computation, dataset handling, and visualization.
 
-selected_labels = [0, 1, 5, 8, 9]
-data = data.loc[data['label'].isin(selected_labels)].reset_index(drop=True)
-Only keep images with labels 0, 1, 5, 8, 9 for simplicity (T-shirt, Trouser, Sandal, Bag, Ankle Boot).
+Matplotlib settings are used so that plots can be shown inside the notebook.
 
-labels = data.pop('label')
-data = data.values
-images = np.reshape(data, (-1, 28, 28))
-Separate the labels.
+---
 
-Convert image data to NumPy arrays and reshape from flat 784 to 28x28 image.
+### 📂 Load and Filter Dataset
 
-🖼️ 3. Show an Example Image
-plt.imshow(images[index].squeeze(), cmap = 'gray')
-plt.title(classes[labels[index]])
-Show the first image in grayscale.
+We load the Fashion MNIST dataset from a CSV file.  
+Each row represents one image of size 28×28 pixels stored as 784 values.
 
-Label the image using the classes dictionary.
+Each image also has a label representing the type of clothing.
 
-⚖️ 4. Standardize the Data
-X_scaled = (data - mean_) / std_
-Standardize each feature (pixel) so all are on the same scale (mean = 0, std = 1).
+For simplicity, we keep only selected classes:
 
-Why? Because PCA is sensitive to scale. Bigger numbers get more weight if not normalized.
+- T-shirt
+- Trouser
+- Sandal
+- Bag
+- Ankle Boot
 
-🧮 5. Compute Covariance Matrix
-cov_matrix = np.cov(features)
-Measures how much each pair of pixels changes together.
+After loading, labels are separated from image data and images are reshaped to 28×28.
 
-Diagonal = variance of each pixel.
+---
 
-Off-diagonal = how two pixels change together.
+### 🖼️ Show Example Image
 
-📈 6. Eigen Decomposition
-eig_values, eig_vectors = np.linalg.eig(cov_matrix)
-Breaks the covariance matrix into:
+A sample image from the dataset is displayed in grayscale.  
+The label of the image is also shown.
 
-Eigenvectors: directions of the most variation (principal components).
+This step confirms that the dataset is loaded correctly.
 
-Eigenvalues: how much variance each direction explains.
+---
 
-plt.stem(eig_values[:200])
-Plot the first 200 eigenvalues (called a scree plot) to see how much variance each principal component explains.
+### ⚖️ Standardize the Data
 
-🔍 7. Check Variance Explained
-for i in range(200):
-    exp_var = np.sum(eig_values[:i+1])*100 / np.sum(eig_values)
-Helps decide how many components to keep.
+Before applying PCA, the data is standardized.
 
-Example: if 50 components explain 90% of variance, maybe keep just 50 instead of 784.
+Standardization means:
 
-📉 8. Project Data onto Top Components (PCA)
-projected_1 = X_scaled.dot(eig_vectors.T[0])  # PC1
-projected_2 = X_scaled.dot(eig_vectors.T[1])  # PC2
-Project images into a new space defined by top eigenvectors (principal components).
+- Mean = 0
+- Standard deviation = 1
 
-📊 9. 2D PCA Visualization
-plt.scatter(x, y, label=label_name)
-Plot images as points in 2D using PC1 and PC2.
+This step is necessary because PCA is sensitive to scale.  
+Without normalization, pixels with larger values would affect the result more.
 
-Helps visualize how well classes separate after PCA.
+---
 
-🌌 10. 3D PCA Visualization
-res3d['PC1'], 'PC2', 'PC3', 'Y'
-Like the 2D case, but now using PC1, PC2, and PC3.
+### 🧮 Compute Covariance Matrix
 
-Creates a 3D scatter plot of the images in reduced space.
+The covariance matrix shows how pixels change together.
 
-🗜️ 11. Compression (Dimensionality Reduction)
-reduced_eigen_space = eig_vectors[:, :350]
-X_compressed = np.dot(X_scaled, reduced_eigen_space)
-Keep only the top 350 components (instead of all 784).
+- Diagonal values represent variance
+- Other values represent relationships between pixels
 
-This compresses each image to a lower-dimensional representation.
+This matrix is required to find principal components.
 
-🔁 12. Reconstruction from Compressed Data
-X_reconstructed = np.dot(X_compressed, reduced_eigen_space.T)
-Recreate the full-sized data from the 350 components.
+---
 
-It won’t be exact, but should be visually close to the original.
+### 📈 Eigen Decomposition
 
-🖼️ 13. Show Original vs. Reconstructed Image
-plt.imshow(images[rec_index].squeeze(), cmap = 'gray')  # Original
-plt.imshow(reconstructed_images[rec_index].squeeze(), cmap = 'gray')  # Reconstructed
-Compares the original and compressed+reconstructed image side-by-side.
+Eigenvalues and eigenvectors are computed from the covariance matrix.
 
-✅ Summary (In Simple Words)
-Step	What It Means
-Load + Show Data	Load fashion images, show examples
-Scale Data	Make all pixel values equally important
-Covariance + Eigenvectors	Find directions (PCs) where data varies most
-Project + Visualize	See data in 2D/3D using top principal components
-Compress	Keep only top 350 directions (from 784)
-Reconstruct	Try to rebuild original image from reduced version
-Compare	See how close reconstructed image looks to the original
+- Eigenvectors represent directions of maximum variation
+- Eigenvalues represent how much variation exists in those directions
 
+Eigenvalues are plotted to see how much variance each component explains.
+
+This helps decide how many components should be kept.
+
+---
+
+### 🔍 Variance Explained
+
+We calculate how much total variance is explained by the top components.
+
+Example:
+
+If 50 components explain 90% variance,  
+we can keep only 50 instead of all 784.
+
+This is the main idea of PCA.
+
+---
+
+### 📉 Project Data onto Principal Components
+
+The original data is projected onto the new PCA space.
+
+Now each image is represented using fewer values.
+
+This makes the data smaller but keeps most important information.
+
+---
+
+### 📊 2D PCA Visualization
+
+Data is plotted using the first two principal components.
+
+Each point represents one image.
+
+This helps visualize how different classes are separated.
+
+---
+
+### 🌌 3D PCA Visualization
+
+Data is also visualized using three principal components.
+
+3D visualization shows the structure of the dataset more clearly.
+
+Different classes can be seen as clusters.
+
+---
+
+### 🗜️ Compression using PCA
+
+Instead of using all 784 pixels, only the top components are kept.
+
+For example:
+
+350 components instead of 784.
+
+This reduces the size of data while preserving most information.
+
+This process is called dimensionality reduction.
+
+---
+
+### 🔁 Reconstruction from Compressed Data
+
+After compression, the images are reconstructed.
+
+Reconstructed images are not exactly the same,
+but they should look very similar to the original.
+
+This shows how much information PCA preserved.
+
+---
+
+### 🖼️ Compare Original and Reconstructed Images
+
+Original and reconstructed images are shown side by side.
+
+If they look similar → PCA worked well  
+If they look very different → too much information was lost
+
+---
+
+## 🚀 Conclusion
+
+This project demonstrates how PCA can:
+
+- Reduce dimensionality
+- Preserve important information
+- Help in visualization
+- Compress image data
+- Improve preprocessing for Machine Learning
+
+PCA is widely used in:
+
+- Machine Learning
+- Computer Vision
+- Data Science
+- Deep Learning
+
+Understanding PCA is very important for working with high-dimensional data.
+
+---
+
+## 👩‍💻 Author
+
+Diya Patel  
+
+BCA Student | Machine Learning Enthusiast  
+
+⭐ If you like this project, consider giving it a star.
